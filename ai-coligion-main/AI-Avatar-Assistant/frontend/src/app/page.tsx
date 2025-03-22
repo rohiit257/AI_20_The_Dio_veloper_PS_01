@@ -351,57 +351,23 @@ export default function Home() {
         {/* Left: Chat history */}
         <div className="lg:col-span-2 flex flex-col bg-white dark:bg-dark-800 rounded-xl shadow-sm overflow-hidden">
           {/* Message list */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6">
-                <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">Welcome to AI Avatar Assistant</h3>
-                <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-md">
-                  Ask questions about the IDMS ERP system. You can use text or voice input to interact with the AI assistant.
-                </p>
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-md">
-                  <button
-                    onClick={() => setQuery("What is the IDMS ERP System?")}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 text-left"
-                  >
-                    What is the IDMS ERP System?
-                  </button>
-                  <button
-                    onClick={() => setQuery("What are the main modules of IDMS?")}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 text-left"
-                  >
-                    What are the main modules of IDMS?
-                  </button>
-                  <button
-                    onClick={() => setQuery("How does IDMS help with GST compliance?")}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 text-left"
-                  >
-                    How does IDMS help with GST compliance?
-                  </button>
-                  <button
-                    onClick={() => setQuery("Explain the Sales Module")}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 text-left"
-                  >
-                    Explain the Sales Module
-                  </button>
-                </div>
-              </div>
-            ) : (
-              messages.map((msg, index) => (
-                <ChatMessage
-                  key={index}
-                  message={msg.text}
-                  isUser={msg.isUser}
-                  timestamp={msg.timestamp}
-                />
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+  {messages.length === 0 ? (
+    <div className="h-full flex flex-col items-center justify-center text-center p-6">
+      {/* Welcome message and buttons */}
+    </div>
+  ) : (
+    messages.map((msg, index) => (
+      <ChatMessage
+        key={index}
+        message={msg.text}
+        isUser={msg.isUser}
+        timestamp={msg.timestamp}
+      />
+    ))
+  )}
+  <div ref={messagesEndRef} />
+</div>
               
           {/* Input form */}
           <form onSubmit={handleQuerySubmit} className="border-t border-gray-200 dark:border-gray-700 p-4">
