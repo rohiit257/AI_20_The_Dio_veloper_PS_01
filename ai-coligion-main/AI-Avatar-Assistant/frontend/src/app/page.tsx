@@ -488,6 +488,7 @@ export default function Home() {
   };
 
   return (
+
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-950 text-gray-900 dark:text-gray-100">
       {/* Background particles */}
       <BackgroundEffects particleCount={20} isDarkMode={isDarkMode} />
@@ -528,7 +529,71 @@ export default function Home() {
               <div 
                 id="did-container"
                 className="w-full h-full"
+
+    <div className="flex flex-col min-h-screen p-4">
+      {/* Header */}
+      <header className="flex items-center justify-between py-4 px-6 bg-white/80 dark:bg-dark-900/80 backdrop-blur-md rounded-xl shadow-sm mb-6">
+        <h1 className="text-2xl font-bold text-gradient">AI Avatar Assistant</h1>
+        <div className="flex items-center gap-4">
+          <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            {isConnected ? 'Connected' : 'Disconnected'}
+          </span>
+          <ThemeToggle />
+        </div>
+      </header>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+        {/* Left: Chat history */}
+        <div className="lg:col-span-2 flex flex-col bg-white dark:bg-dark-800 rounded-xl shadow-sm overflow-hidden">
+          {/* Message list */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+  {messages.length === 0 ? (
+    <div className="h-full flex flex-col items-center justify-center text-center p-6">
+      {/* Welcome message and buttons */}
+    </div>
+  ) : (
+    messages.map((msg, index) => (
+      <ChatMessage
+        key={index}
+        message={msg.text}
+        isUser={msg.isUser}
+        timestamp={msg.timestamp}
+      />
+    ))
+  )}
+  <div ref={messagesEndRef} />
+</div>
+              
+          {/* Input form */}
+          <form onSubmit={handleQuerySubmit} className="border-t border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 bg-white dark:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={startVoiceInput}
+                disabled={!isConnected || isLoading || isListening}
+                className={`p-2 rounded-lg ${isListening 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'} 
+                  hover:opacity-90 disabled:opacity-50`}
+                title="Voice input"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </button>
+              <button
+                type="submit"
+                disabled={!isConnected || isLoading || !query.trim()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50"
+ >
                 {/* Direct D-ID agent element with enhanced attributes */}
                 <div dangerouslySetInnerHTML={{ 
                   __html: `<did-agent 
