@@ -18,13 +18,15 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@react-three/drei": "^9.88.0",
+    "@react-three/fiber": "^8.13.6",
     "@types/node": "^20.10.5",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.17",
     "autoprefixer": "10.4.21",
     "axios": "^1.8.4",
     "date-fns": "^4.1.0",
-    "framer-motion": "^10.16.16",
+    "framer-motion": "^10.18.0",
     "next": "14.0.4",
     "postcss": "8.5.3",
     "react": "18.2.0",
@@ -32,8 +34,13 @@
     "react-icons": "^4.12.0",
     "react-spring": "^9.7.3",
     "socket.io-client": "^4.7.2",
+    "tailwind-merge": "^3.0.2",
     "tailwindcss": "3.4.17",
     "three": "^0.159.0",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "glslify-loader": "^2.0.0",
+    "raw-loader": "^4.0.2"
   }
 }
