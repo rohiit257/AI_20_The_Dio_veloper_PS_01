@@ -1,0 +1,244 @@
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+.header p {
+  font-size: 1.2rem;
+  color: var(--secondary-color);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.avatarSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.avatarPlaceholder {
+  width: 320px;
+  height: 240px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+}
+
+.chatSection {
+  flex: 1;
+  border: 1px solid #eaeaea;
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messagesContainer {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 300px;
+  max-height: 500px;
+}
+
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  max-width: 80%;
+  word-break: break-word;
+}
+
+.userMessage {
+  align-self: flex-end;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.aiMessage {
+  align-self: flex-start;
+  background-color: #f1f5f9;
+  color: var(--text-color);
+}
+
+.typingIndicator {
+  padding: 0.5rem 1rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #aaa;
+  animation: pulse 1.4s infinite ease-in-out;
+  margin-right: 5px;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 60%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  30% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+.inputContainer {
+  display: flex;
+  padding: 1rem;
+  border-top: 1px solid #eaeaea;
+  background-color: white;
+}
+
+.input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  margin-right: 0.5rem;
+}
+
+.sendButton {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sendButton:hover {
+  background-color: var(--secondary-color);
+}
+
+.voiceButton {
+  padding: 0.75rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.voiceButton:hover {
+  opacity: 0.9;
+}
+
+.serverStatus {
+  background-color: rgba(251, 191, 36, 0.1);
+  color: #b45309;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  text-align: center;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+@media (min-width: 768px) {
+  .main {
+    flex-direction: row;
+  }
+  
+  .avatarSection {
+    width: 40%;
+    margin-bottom: 0;
+  }
+  
+  .chatSection {
+    width: 60%;
+  }
+}
+
+/* Context hint styles */
+.contextHint {
+  margin-top: 10px;
+  color: #666;
+  font-size: 0.85rem;
+  text-align: center;
+  font-style: italic;
+  padding: 5px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+/* Suggestions container */
+.suggestionsContainer {
+  padding: 10px 15px;
+  background-color: #f7f9fc;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.suggestionsTitle {
+  font-size: 0.9rem;
+  color: #5c6bc0;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.suggestionChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestionChip {
+  background-color: #e8eaf6;
+  color: #3949ab;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestionChip:hover {
+  background-color: #c5cae9;
+}
+
+.suggestionChip:disabled {
+  background-color: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+} 

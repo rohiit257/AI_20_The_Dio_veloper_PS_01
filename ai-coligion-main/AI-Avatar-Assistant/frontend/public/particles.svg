@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="800px" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <radialGradient id="radialGradient-1" cx="50%" cy="50%" fx="50%" fy="50%" r="70%" gradientTransform="translate(0.500000,0.500000),scale(1.000000,1.000000),rotate(90.000000),translate(-0.500000,-0.500000)">
+            <stop stop-color="#4F46E5" stop-opacity="0.4" offset="0%"></stop>
+            <stop stop-color="#4F46E5" stop-opacity="0" offset="100%"></stop>
+        </radialGradient>
+    </defs>
+    <g id="Particles" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="particle-1" fill="#4F46E5" cx="150" cy="200" r="2"></circle>
+        <circle id="particle-2" fill="#4F46E5" cx="250" cy="120" r="1.5"></circle>
+        <circle id="particle-3" fill="#4F46E5" cx="350" cy="180" r="3"></circle>
+        <circle id="particle-4" fill="#4F46E5" cx="450" cy="250" r="2"></circle>
+        <circle id="particle-5" fill="#4F46E5" cx="550" cy="150" r="2.5"></circle>
+        <circle id="particle-6" fill="#4F46E5" cx="650" cy="220" r="1.8"></circle>
+        <circle id="particle-7" fill="#4F46E5" cx="200" cy="300" r="2.2"></circle>
+        <circle id="particle-8" fill="#4F46E5" cx="300" cy="350" r="1.7"></circle>
+        <circle id="particle-9" fill="#4F46E5" cx="400" cy="400" r="3"></circle>
+        <circle id="particle-10" fill="#4F46E5" cx="500" cy="450" r="1.5"></circle>
+        <circle id="particle-11" fill="#4F46E5" cx="600" cy="370" r="2"></circle>
+        <circle id="particle-12" fill="#4F46E5" cx="170" cy="450" r="1.8"></circle>
+        <circle id="particle-13" fill="#4F46E5" cx="270" cy="500" r="2.5"></circle>
+        <circle id="particle-14" fill="#4F46E5" cx="370" cy="550" r="1.5"></circle>
+        <circle id="particle-15" fill="#4F46E5" cx="470" cy="600" r="2"></circle>
+        <circle id="particle-16" fill="#4F46E5" cx="570" cy="520" r="1.7"></circle>
+        <circle id="particle-17" fill="#4F46E5" cx="670" cy="570" r="2.2"></circle>
+        <circle id="particle-18" fill="#4F46E5" cx="220" cy="650" r="1.8"></circle>
+        <circle id="particle-19" fill="#4F46E5" cx="320" cy="700" r="2"></circle>
+        <circle id="particle-20" fill="#4F46E5" cx="420" cy="620" r="3"></circle>
+        <circle id="particle-21" fill="#7C3AED" cx="180" cy="180" r="1.5"></circle>
+        <circle id="particle-22" fill="#7C3AED" cx="280" cy="220" r="2"></circle>
+        <circle id="particle-23" fill="#7C3AED" cx="380" cy="150" r="1.7"></circle>
+        <circle id="particle-24" fill="#7C3AED" cx="480" cy="280" r="2.5"></circle>
+        <circle id="particle-25" fill="#7C3AED" cx="580" cy="200" r="1.8"></circle>
+        <circle id="particle-26" fill="#7C3AED" cx="230" cy="330" r="2.2"></circle>
+        <circle id="particle-27" fill="#7C3AED" cx="330" cy="380" r="1.5"></circle>
+        <circle id="particle-28" fill="#7C3AED" cx="430" cy="430" r="2"></circle>
+        <circle id="particle-29" fill="#7C3AED" cx="530" cy="480" r="1.7"></circle>
+        <circle id="particle-30" fill="#7C3AED" cx="630" cy="400" r="2.5"></circle>
+        <circle id="particle-31" fill="#7C3AED" cx="200" cy="480" r="1.8"></circle>
+        <circle id="particle-32" fill="#7C3AED" cx="300" cy="530" r="2.2"></circle>
+        <circle id="particle-33" fill="#7C3AED" cx="400" cy="580" r="1.5"></circle>
+        <circle id="particle-34" fill="#7C3AED" cx="500" cy="630" r="2"></circle>
+        <circle id="particle-35" fill="#7C3AED" cx="600" cy="550" r="1.7"></circle>
+        <circle id="particle-36" fill="#7C3AED" cx="700" cy="600" r="2.5"></circle>
+        <circle id="particle-37" fill="#7C3AED" cx="250" cy="680" r="1.8"></circle>
+        <circle id="particle-38" fill="#7C3AED" cx="350" cy="730" r="2.2"></circle>
+        <circle id="particle-39" fill="#7C3AED" cx="450" cy="650" r="1.5"></circle>
+        <circle id="particle-40" fill="#7C3AED" cx="550" cy="700" r="2"></circle>
+        <rect id="glow" fill="url(#radialGradient-1)" x="0" y="0" width="800" height="800"></rect>
+    </g>
+</svg>
