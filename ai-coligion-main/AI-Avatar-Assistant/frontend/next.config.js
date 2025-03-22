@@ -6,21 +6,21 @@ const nextConfig = {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000',
   },
   images: {
-    domains: ['example.com'],
+    domains: ['agent.d-id.com', 'd-id.com'],
   },
-  webpack: (config) => {
-    // audio support
-    config.module.rules.push({
-      test: /\.(ogg|mp3|wav|mpe?g)$/i,
-      type: 'asset/resource',
-      generator: {
-        filename: 'static/chunks/[path][name].[hash][ext]',
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://agent.d-id.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.d-id.com; media-src 'self' https://*.d-id.com; connect-src 'self' https://*.d-id.com ws://localhost:* http://localhost:* https://localhost:*;",
+          },
+        ],
       },
-    });
-    return config;
+    ];
   },
-  // Disable source maps in production to reduce bundle size
-  productionBrowserSourceMaps: false
 };
 
 module.exports = nextConfig; 

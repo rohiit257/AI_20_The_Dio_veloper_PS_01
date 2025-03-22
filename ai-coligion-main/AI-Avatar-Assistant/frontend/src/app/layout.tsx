@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script src="https://sdk.did.ai/did-sdk.js" async></script>
+        <script src="https://agent.d-id.com/v1/index.js" type="module" async></script>
       </head>
       <body className={`${inter.className} min-h-screen`}>
         <ThemeClientWrapper>

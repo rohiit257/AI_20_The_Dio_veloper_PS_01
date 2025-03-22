@@ -48,20 +48,47 @@ export default function Home() {
 
   // Initialize D-ID Agent
   useEffect(() => {
-    if (didAgentRef.current && typeof window !== 'undefined' && window.DID) {
+    if (didAgentRef.current && typeof window !== 'undefined') {
       // Clear any previous content
       didAgentRef.current.innerHTML = '';
       
-      // Create the D-ID agent
-      const agent = document.createElement('did-agent');
-      agent.setAttribute('data-client-key', 'Z29vZ2xlLW9hdXRoMnwxMDQ0MjQzNzIyMTExMDExMjkwMDA6SHhPcG9ibG10a0tVODRLYTVhNTBZ');
-      agent.setAttribute('data-agent-id', 'agt_0hWQiLqG');
-      agent.setAttribute('data-monitor', 'true');
+      // In the updated SDK version, we need to wait for the script to load
+      // Create the D-ID agent directly with HTML
+      didAgentRef.current.innerHTML = `
+        <did-agent 
+          client-key="Z29vZ2xlLW9hdXRoMnwxMDQ0MjQzNzIyMTExMDExMjkwMDA6SHhPcG9ibG10a0tVODRLYTVhNTBZ"
+          agent-id="agt_0hWQiLqG"
+          mode="fabio"
+          monitor="true">
+        </did-agent>
+      `;
       
-      // Append to the container
-      didAgentRef.current.appendChild(agent);
+      // Add debug UI
+      const debugContainer = document.createElement('div');
+      debugContainer.className = 'absolute bottom-4 left-4 p-2 bg-white/80 dark:bg-gray-800/80 rounded text-xs max-w-[200px] backdrop-blur-sm text-gray-800 dark:text-gray-200';
+      debugContainer.innerHTML = `
+        <div class="font-semibold mb-1">Debug Info:</div>
+        <div id="agent-status">Loading agent...</div>
+      `;
+      didAgentRef.current.appendChild(debugContainer);
+      
+      // Monitor connection status
+      const updateStatus = setInterval(() => {
+        const statusElement = document.getElementById('agent-status');
+        if (statusElement) {
+          if (isConnected) {
+            statusElement.textContent = 'Backend connected, agent ready';
+            statusElement.className = 'text-green-600 dark:text-green-400';
+          } else {
+            statusElement.textContent = 'Backend disconnected, agent may not respond';
+            statusElement.className = 'text-red-600 dark:text-red-400';
+          }
+        }
+      }, 1000);
+      
+      return () => clearInterval(updateStatus);
     }
-  }, []);
+  }, [isConnected]);
 
   // Setup theme detection
   useEffect(() => {
