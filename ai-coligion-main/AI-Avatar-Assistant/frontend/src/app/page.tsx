@@ -46,48 +46,42 @@ export default function Home() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const didAgentRef = useRef<HTMLDivElement>(null);
 
-  // Initialize D-ID Agent
+  // Initialize D-ID Agent 
   useEffect(() => {
-    if (didAgentRef.current && typeof window !== 'undefined') {
-      // Clear any previous content
-      didAgentRef.current.innerHTML = '';
-      
-      // In the updated SDK version, we need to wait for the script to load
-      // Create the D-ID agent directly with HTML
-      didAgentRef.current.innerHTML = `
-        <did-agent 
-          client-key="Z29vZ2xlLW9hdXRoMnwxMDQ0MjQzNzIyMTExMDExMjkwMDA6SHhPcG9ibG10a0tVODRLYTVhNTBZ"
-          agent-id="agt_0hWQiLqG"
-          mode="fabio"
-          monitor="true">
-        </did-agent>
-      `;
-      
-      // Add debug UI
-      const debugContainer = document.createElement('div');
-      debugContainer.className = 'absolute bottom-4 left-4 p-2 bg-white/80 dark:bg-gray-800/80 rounded text-xs max-w-[200px] backdrop-blur-sm text-gray-800 dark:text-gray-200';
-      debugContainer.innerHTML = `
-        <div class="font-semibold mb-1">Debug Info:</div>
-        <div id="agent-status">Loading agent...</div>
-      `;
-      didAgentRef.current.appendChild(debugContainer);
-      
-      // Monitor connection status
-      const updateStatus = setInterval(() => {
-        const statusElement = document.getElementById('agent-status');
-        if (statusElement) {
-          if (isConnected) {
-            statusElement.textContent = 'Backend connected, agent ready';
-            statusElement.className = 'text-green-600 dark:text-green-400';
-          } else {
-            statusElement.textContent = 'Backend disconnected, agent may not respond';
-            statusElement.className = 'text-red-600 dark:text-red-400';
-          }
+    // Just update the debug element when connection status changes
+    const updateStatus = setInterval(() => {
+      const statusElement = document.getElementById('agent-status');
+      if (statusElement) {
+        if (isConnected) {
+          statusElement.textContent = 'Backend connected, agent ready';
+          statusElement.className = 'text-green-600 dark:text-green-400';
+        } else {
+          statusElement.textContent = 'Backend disconnected, agent may not respond';
+          statusElement.className = 'text-red-600 dark:text-red-400';
         }
-      }, 1000);
+      }
+    }, 1000);
+    
+    // Hide loading overlay when D-ID agent is loaded
+    const hideLoadingOverlay = () => {
+      const loadingOverlay = document.getElementById('agent-loading-overlay');
+      const didAgent = document.querySelector('[data-component="did-agent"]');
       
-      return () => clearInterval(updateStatus);
-    }
+      if (loadingOverlay && didAgent) {
+        // Check if D-ID agent has loaded
+        if (window.DID && window.DID.isLoaded) {
+          loadingOverlay.style.display = 'none';
+        } else {
+          // Try again in 1 second
+          setTimeout(hideLoadingOverlay, 1000);
+        }
+      }
+    };
+    
+    // Check initially and start checking for agent load
+    hideLoadingOverlay();
+    
+    return () => clearInterval(updateStatus);
   }, [isConnected]);
 
   // Setup theme detection
@@ -250,29 +244,43 @@ export default function Home() {
 
         {/* Main content area */}
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Agent container - DID Agent will be injected here via the script */}
+          {/* Agent container */}
           <motion.div 
-            className={`relative w-full md:w-1/2 h-[300px] md:h-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden ${
+            className={`relative w-full md:w-1/2 h-[300px] md:h-[450px] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-xl overflow-hidden ${
               agentContainerVisible ? 'block' : 'hidden md:block'
             }`}
             variants={slideUp}
             initial="initial"
             animate="animate"
           >
-            <div 
-              ref={didAgentRef}
-              className="absolute inset-0 flex items-center justify-center bg-transparent w-full h-full"
-            />
+            {/* Agent container - Using direct did-agent element */}
+            <div ref={didAgentRef} className="w-full h-full flex items-center justify-center">
+              <div 
+                data-component="did-agent"
+                style={{ width: '100%', height: '100%' }}
+              ></div>
+            </div>
             
-            {/* Floating status indicator */}
-            <div className="absolute top-4 right-4 flex items-center space-x-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm py-1 px-3 rounded-full text-xs">
-              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+            {/* Debug info */}
+            <div className="absolute bottom-4 left-4 p-3 bg-black/60 backdrop-blur-sm rounded-lg text-xs text-white z-20">
+              <div className="font-bold mb-1">Debug Info:</div>
+              <div id="agent-status">
+                {isConnected ? 
+                  <span className="text-green-400">Backend connected, agent ready</span> : 
+                  <span className="text-red-400">Backend disconnected, agent may not respond</span>
+                }
+              </div>
+            </div>
+            
+            {/* Status indicator */}
+            <div className="absolute top-4 right-4 flex items-center space-x-2 bg-black/60 backdrop-blur-sm py-1.5 px-3 rounded-full text-xs text-white z-20">
+              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
               <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
             </div>
 
-            {/* Mobile toggle button - for responsive design */}
+            {/* Mobile toggle button */}
             <button 
-              className="md:hidden absolute bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-lg"
+              className="md:hidden absolute bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-lg z-20"
               onClick={toggleAgentContainer}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

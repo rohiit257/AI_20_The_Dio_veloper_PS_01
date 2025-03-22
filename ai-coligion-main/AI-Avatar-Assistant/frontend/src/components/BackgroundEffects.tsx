@@ -28,7 +28,11 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    // Set canvas properties for better rendering
+    const ctx = canvas.getContext('2d', { 
+      willReadFrequently: true,
+      alpha: true
+    });
     if (!ctx) return;
 
     // Set canvas size to match window
@@ -41,7 +45,7 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
     const initParticles = () => {
       particles.current = [];
       for (let i = 0; i < particleCount; i++) {
-        const size = Math.random() * 5 + 1;
+        const size = Math.random() * 4 + 1; // Slightly smaller particles
         const particleColors = isDarkMode 
           ? ['#4A5568', '#2D3748', '#1A202C', '#4299E1', '#3182CE'] 
           : ['#EBF4FF', '#C3DAFE', '#A3BFFA', '#7F9CF5', '#667EEA'];
@@ -50,9 +54,9 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           size,
-          speedX: (Math.random() - 0.5) * 0.5,
-          speedY: (Math.random() - 0.5) * 0.5,
-          opacity: Math.random() * 0.5 + 0.1,
+          speedX: (Math.random() - 0.5) * 0.3, // Slower movement
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.4 + 0.1, // More subtle opacity
           color: particleColors[Math.floor(Math.random() * particleColors.length)]
         });
       }
@@ -60,44 +64,57 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
 
     // Animation loop
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw particles
-      particles.current.forEach((p, index) => {
-        // Update position
-        p.x += p.speedX;
-        p.y += p.speedY;
+        // Update and draw particles
+        particles.current.forEach((p, index) => {
+          // Update position
+          p.x += p.speedX;
+          p.y += p.speedY;
 
-        // Boundary checks with wrap-around
-        if (p.x < -p.size) p.x = canvas.width + p.size;
-        if (p.x > canvas.width + p.size) p.x = -p.size;
-        if (p.y < -p.size) p.y = canvas.height + p.size;
-        if (p.y > canvas.height + p.size) p.y = -p.size;
+          // Boundary checks with wrap-around
+          if (p.x < -p.size) p.x = canvas.width + p.size;
+          if (p.x > canvas.width + p.size) p.x = -p.size;
+          if (p.y < -p.size) p.y = canvas.height + p.size;
+          if (p.y > canvas.height + p.size) p.y = -p.size;
 
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color + Math.floor(p.opacity * 255).toString(16).padStart(2, '0');
-        ctx.fill();
+          // Draw particle - using simpler rendering to prevent tainting
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + Math.floor(p.opacity * 255).toString(16).padStart(2, '0');
+          ctx.fill();
 
-        // Connect nearby particles with lines
-        particles.current.slice(index + 1).forEach(p2 => {
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 100) {
-            ctx.beginPath();
-            ctx.strokeStyle = isDarkMode 
-              ? `rgba(255, 255, 255, ${0.05 * (1 - distance / 100)})`
-              : `rgba(0, 0, 0, ${0.05 * (1 - distance / 100)})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
+          // Draw connections with reduced frequency to avoid potential canvas issues
+          if (index % 3 === 0) { 
+            particles.current.slice(index + 1).forEach((p2, i) => {
+              if (i % 3 === 0) { 
+                const dx = p.x - p2.x;
+                const dy = p.y - p2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 80) { 
+                  try {
+                    ctx.beginPath();
+                    ctx.strokeStyle = isDarkMode 
+                      ? `rgba(255, 255, 255, ${0.03 * (1 - distance / 80)})` 
+                      : `rgba(0, 0, 0, ${0.03 * (1 - distance / 80)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                  } catch (err) {
+                    // Silently catch any potential stroke errors
+                  }
+                }
+              }
+            });
           }
         });
-      });
+      } catch (error) {
+        console.error("Canvas error:", error);
+        // Don't break the animation loop on error
+      }
 
       animationFrameId.current = requestAnimationFrame(animate);
     };
@@ -108,17 +125,19 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
     animate();
 
     // Add listener for window resize
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
       resizeCanvas();
       initParticles();
-    });
+    };
+    
+    window.addEventListener('resize', handleResize);
 
     // Cleanup
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', handleResize);
     };
   }, [particleCount, isDarkMode]);
 
@@ -126,8 +145,9 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
     <canvas
       ref={canvasRef}
       className="fixed inset-0 w-full h-full pointer-events-none z-0"
+      style={{ opacity: 0.6 }} // Make background effects more subtle
     />
   );
 };
 
-export default BackgroundEffects; 
+export default BackgroundEffects;

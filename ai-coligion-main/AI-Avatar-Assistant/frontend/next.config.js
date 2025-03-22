@@ -15,7 +15,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://agent.d-id.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.d-id.com; media-src 'self' https://*.d-id.com; connect-src 'self' https://*.d-id.com ws://localhost:* http://localhost:* https://localhost:*;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://agent.d-id.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.d-id.com; media-src 'self' blob: https://*.d-id.com; connect-src 'self' https://*.d-id.com https://api-js.mixpanel.com https://*.sentry.io ws: wss: ws://localhost:* http://localhost:* https://localhost:*; frame-src 'self' https://*.d-id.com;",
           },
         ],
       },

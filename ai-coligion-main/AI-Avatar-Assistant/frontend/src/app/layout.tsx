@@ -19,7 +19,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script src="https://agent.d-id.com/v1/index.js" type="module" async></script>
+        <script
+          type="module"
+          src="https://agent.d-id.com/v1/index.js"
+          data-name="did-agent"
+          data-mode="fabio"
+          data-client-key="Z29vZ2xlLW9hdXRoMnwxMDQ0MjQzNzIyMTExMDExMjkwMDA6SHhPcG9ibG10a0tVODRLYTVhNTBZ"
+          data-agent-id="agt_0hWQiLqG"
+          data-monitor="true"
+          crossOrigin="anonymous">
+        </script>
       </head>
       <body className={`${inter.className} min-h-screen`}>
         <ThemeClientWrapper>
