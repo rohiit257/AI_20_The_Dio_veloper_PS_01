@@ -351,7 +351,7 @@ export default function Home() {
         {/* Left: Chat history */}
         <div className="lg:col-span-2 flex flex-col bg-white dark:bg-dark-800 rounded-xl shadow-sm overflow-hidden">
           {/* Message list */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ maxHeight: 'calc(100vh - 200px)' }}>
   {messages.length === 0 ? (
     <div className="h-full flex flex-col items-center justify-center text-center p-6">
       {/* Welcome message and buttons */}
