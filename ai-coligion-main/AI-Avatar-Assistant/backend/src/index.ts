@@ -26,7 +26,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://ai-avatar-assistant.vercel.app' // Add the Vercel deployment URL
+  ],
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Routes
@@ -43,7 +50,10 @@ const server = http.createServer(app);
 // Initialize Socket.io
 const io = new SocketServer(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'https://ai-avatar-assistant.vercel.app' // Add the Vercel deployment URL
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   },
@@ -80,7 +90,14 @@ io.on('connection', (socket) => {
       // Extract message data
       // Handle both message formats - object with 'message' property or object with 'text' property
       const text = message.message || message.text || '';
-      const { model = 'gemini', voice, avatar, conversationId: msgConversationId } = message;
+      const { 
+        model = 'gemini', 
+        voice = 'rachel', 
+        avatar = true,
+        language = 'en',
+        avatarStyle = 'professional',
+        conversationId: msgConversationId 
+      } = message;
       
       // Use conversation ID from message or from socket
       const actualConversationId = msgConversationId || conversationId;
@@ -91,39 +108,35 @@ io.on('connection', (socket) => {
       // Get contextual data
       const contextData = getContextualData(text, actualConversationId);
       
-      // Process with selected AI model based on complexity
+      // Always use Gemini for answers - no fallback responses
       let aiResponse;
       try {
-        const isComplexQuery = 
-          text.length > 50 || 
-          text.includes('explain') || 
-          text.includes('how') || 
-          contextData.detectedIntent === 'how_to' ||
-          contextData.detectedIntent === 'troubleshooting';
-          
-        if (isComplexQuery) {
-          // Use advanced Gemini for complex queries
-          aiResponse = await processWithAdvancedGemini(text, actualConversationId, {
-            relevantInfo: contextData.suggestedContext,
-            userHistory: `User has recently been looking at ${contextData.relevantModules.join(', ')}`,
-            detectedIntent: contextData.detectedIntent
-          });
-        } else {
-          // Default to regular Gemini for simple queries
-          aiResponse = await processWithGemini(text, actualConversationId, {
-            relevantInfo: contextData.suggestedContext
-          });
-        }
+        // Try to use the more capable Gemini model
+        aiResponse = await processWithAdvancedGemini(text, actualConversationId, {
+          relevantInfo: contextData.suggestedContext,
+          userHistory: `User has recently been looking at ${contextData.relevantModules.join(', ')}`,
+          detectedIntent: contextData.detectedIntent,
+        });
       } catch (aiError) {
-        console.error('Error processing with AI:', aiError);
-        aiResponse = "I'm having trouble connecting to my knowledge system right now. Please try again in a moment.";
+        console.error('Error processing with Advanced Gemini:', aiError);
+        
+        // Try the regular Gemini as backup
+        try {
+          aiResponse = await processWithGemini(text, actualConversationId, {
+            relevantInfo: contextData.suggestedContext,
+          });
+        } catch (secondError) {
+          console.error('Error processing with both Gemini models:', secondError);
+          throw new Error('Unable to generate a response with Gemini');
+        }
       }
       
       // Create response object
       const response = {
         text: aiResponse,
         source: 'gemini_api',
-        context: contextData
+        context: contextData,
+        language: language
       };
       
       // Send the text response
@@ -138,7 +151,9 @@ io.on('connection', (socket) => {
           
           socket.emit('ai-speech', {
             audioData: audioBase64,
-            mimeType: 'audio/mpeg'
+            mimeType: 'audio/mpeg',
+            voice: voice,
+            language: language
           });
         } catch (speechError) {
           console.error('Error generating speech:', speechError);
@@ -146,36 +161,29 @@ io.on('connection', (socket) => {
         }
       }
       
-      // Process avatar animation if requested
+      // Process avatar animation if requested but disabled since we're using D-ID agent
       if (avatar) {
         try {
           // Emit processing status
           socket.emit('avatar-processing', { isProcessing: true });
-          socket.emit('ai-avatar', { id: 'processing' });
           
-          // Call the DID API service
-          const avatarResult = await createTalkingAvatar(
-            aiResponse,
-            null,
-            'professional'
-          );
-          
-          // Send avatar ID for client-side polling
+          // Send D-ID API not configured message
           socket.emit('ai-avatar', { 
-            id: avatarResult.id,
-            status: 'processing'
+            id: 'using-did-agent',
+            status: 'using-external-agent',
+            message: 'Using external D-ID agent instead of built-in avatar'
           });
           
           socket.emit('avatar-processing', { isProcessing: false });
         } catch (avatarError) {
           console.error('Error processing avatar:', avatarError);
-          socket.emit('error', { message: 'Error generating avatar animation' });
+          socket.emit('error', { message: 'Error with avatar processing' });
           socket.emit('avatar-processing', { isProcessing: false });
         }
       }
     } catch (error) {
       console.error('Error processing message:', error);
-      socket.emit('error', { message: 'Error processing your request' });
+      socket.emit('error', { message: 'Error processing your request. Please try again.' });
       socket.emit('ai-typing', { isTyping: false });
     }
   });

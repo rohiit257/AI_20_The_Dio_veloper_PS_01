@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5001';
+const SOCKET_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 export interface SocketMessage {
   text: string;
@@ -37,22 +37,21 @@ export class SocketService {
   private errorHandlers: ((data: ErrorMessage) => void)[] = [];
   private statusHandlers: ((status: boolean) => void)[] = [];
 
-  connect() {
+  initialize() {
     if (this.socket) {
       return;
     }
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5001';
-    
+    // For production, use the environment variable that will be set in Vercel
+    const socketUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+
     console.log('Connecting to socket server at:', socketUrl);
     
     this.socket = io(socketUrl, {
       transports: ['websocket', 'polling'], // Allow fallback to polling if websocket fails
-      reconnection: true,
-      reconnectionAttempts: 10,
+      reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      timeout: 20000,
-      forceNew: true
+      timeout: 10000
     });
 
     this.setupListeners();
