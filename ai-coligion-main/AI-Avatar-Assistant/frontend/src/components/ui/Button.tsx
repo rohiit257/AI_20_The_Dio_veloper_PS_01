@@ -1,17 +1,21 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, MotionProps } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   isLoading?: boolean;
   icon?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
+  disabled?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  type?: 'button' | 'submit' | 'reset';
+  [key: string]: any; // Allow other HTML button props
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -56,13 +60,17 @@ const Button: React.FC<ButtonProps> = ({
     disabled: { opacity: 0.6 },
   };
 
+  const motionProps: MotionProps = {
+    whileHover: "hover",
+    whileTap: "tap",
+    variants: buttonVariants
+  };
+
   return (
     <motion.button
       className={buttonStyles}
-      whileHover="hover"
-      whileTap="tap"
-      variants={buttonVariants}
       disabled={isLoading || props.disabled}
+      {...motionProps}
       {...props}
     >
       {isLoading ? (

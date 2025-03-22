@@ -29,6 +29,27 @@ declare global {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+// Check D-ID SDK availability
+if (typeof window !== 'undefined') {
+  console.log('Checking D-ID SDK availability');
+  // Log when the DID global object is set
+  const originalDefineProperty = Object.defineProperty;
+  Object.defineProperty = function(obj, prop, descriptor) {
+    if (prop === 'DID' && obj === window) {
+      console.log('D-ID SDK being set on window object');
+    }
+    return originalDefineProperty(obj, prop, descriptor);
+  };
+  
+  // Check if DID is already available
+  setTimeout(() => {
+    console.log('D-ID SDK after timeout:', window.DID ? 'Available' : 'Not available');
+    if (window.DID) {
+      console.log('D-ID SDK properties:', Object.keys(window.DID));
+    }
+  }, 5000);
+}
+
 export default function Home() {
   // State management
   const [messages, setMessages] = useState<Message[]>([]);
@@ -66,13 +87,21 @@ export default function Home() {
     const hideLoadingOverlay = () => {
       const loadingOverlay = document.getElementById('agent-loading-overlay');
       const didAgent = document.querySelector('[data-component="did-agent"]');
+      const sdkStatus = document.getElementById('sdk-status');
       
       if (loadingOverlay && didAgent) {
         // Check if D-ID agent has loaded
-        if (window.DID && window.DID.isLoaded) {
+        if (typeof window !== 'undefined' && window.DID && window.DID.isLoaded) {
           loadingOverlay.style.display = 'none';
+          if (sdkStatus) sdkStatus.textContent = 'Yes';
+          // Set window property in a TypeScript-safe way
+          if (typeof window !== 'undefined') {
+            (window as any).didAgentLoaded = true;
+          }
+          console.log('D-ID agent loaded successfully');
         } else {
           // Try again in 1 second
+          if (sdkStatus) sdkStatus.textContent = 'No';
           setTimeout(hideLoadingOverlay, 1000);
         }
       }
@@ -80,6 +109,34 @@ export default function Home() {
     
     // Check initially and start checking for agent load
     hideLoadingOverlay();
+    
+    // Handle D-ID specific errors in Vercel
+    const checkVercelDIDIssues = () => {
+      if (typeof window !== 'undefined') {
+        // Check for Vercel-specific issues
+        const isVercel = window.location.hostname.includes('vercel.app');
+        if (isVercel) {
+          console.log('Running on Vercel deployment, checking for D-ID agent');
+          
+          // Check if D-ID agent script loaded
+          const didScript = document.querySelector('script[src*="d-id.com"]');
+          if (!didScript) {
+            console.error('D-ID script tag not found in document');
+            const errorEl = document.getElementById('did-error');
+            if (errorEl) errorEl.textContent = 'D-ID script tag not found';
+          }
+          
+          // Add extra debugging info
+          window.addEventListener('error', (event) => {
+            console.error('Caught error:', event.message);
+            const errorEl = document.getElementById('did-error');
+            if (errorEl) errorEl.textContent = event.message;
+          });
+        }
+      }
+    };
+    
+    checkVercelDIDIssues();
     
     return () => clearInterval(updateStatus);
   }, [isConnected]);
@@ -220,6 +277,47 @@ export default function Home() {
     "How does IDMS help with GST compliance?",
   ];
 
+  // Check for D-ID element existence
+  useEffect(() => {
+    // Update D-ID element status
+    const updateDIDElementStatus = () => {
+      const statusElement = document.getElementById('did-element-status');
+      const didElement = document.querySelector('did-agent');
+      
+      if (statusElement) {
+        if (didElement) {
+          statusElement.textContent = 'Found';
+          statusElement.className = 'text-green-400';
+          console.log('D-ID agent element found in DOM');
+        } else {
+          statusElement.textContent = 'Not found';
+          statusElement.className = 'text-red-400';
+          console.log('D-ID agent element NOT found in DOM');
+        }
+      }
+    };
+
+    // Check initially and then periodically
+    updateDIDElementStatus();
+    const checkInterval = setInterval(updateDIDElementStatus, 5000);
+    
+    // Special handling for Vercel environment
+    if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+      console.log('Vercel environment detected, applying special D-ID handling');
+      
+      // Ensure did-agent element exists
+      setTimeout(() => {
+        const didContainer = document.getElementById('did-container');
+        if (didContainer && !document.querySelector('did-agent')) {
+          console.log('Forcing creation of did-agent element on Vercel');
+          didContainer.innerHTML = '<did-agent></did-agent>';
+        }
+      }, 3000);
+    }
+    
+    return () => clearInterval(checkInterval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-950 text-gray-900 dark:text-gray-100">
       {/* Background particles */}
@@ -253,15 +351,26 @@ export default function Home() {
             initial="initial"
             animate="animate"
           >
-            {/* Agent container - Using direct did-agent element */}
+            {/* Agent container with both div container and direct element */}
             <div ref={didAgentRef} className="w-full h-full flex items-center justify-center">
               <div 
-                data-component="did-agent"
-                style={{ width: '100%', height: '100%' }}
-              ></div>
+                id="did-container"
+                className="w-full h-full"
+              >
+                {/* Direct D-ID agent element - works better on Vercel */}
+                <div dangerouslySetInnerHTML={{ __html: '<did-agent></did-agent>' }} />
+              </div>
             </div>
             
-            {/* Debug info */}
+            {/* Loading overlay - shows while agent loads */}
+            <div id="agent-loading-overlay" className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70 z-10">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-white text-sm">Loading virtual assistant...</p>
+              </div>
+            </div>
+            
+            {/* Enhanced debug info with Vercel troubleshooting */}
             <div className="absolute bottom-4 left-4 p-3 bg-black/60 backdrop-blur-sm rounded-lg text-xs text-white z-20">
               <div className="font-bold mb-1">Debug Info:</div>
               <div id="agent-status">
@@ -269,6 +378,13 @@ export default function Home() {
                   <span className="text-green-400">Backend connected, agent ready</span> : 
                   <span className="text-red-400">Backend disconnected, agent may not respond</span>
                 }
+              </div>
+              <div className="text-xs mt-1">
+                <div>D-ID SDK Loaded: <span id="sdk-status">{typeof window !== 'undefined' && window.DID ? 'Yes' : 'No'}</span></div>
+                <div>Error: <span id="did-error" className="text-red-400">None reported</span></div>
+                <div>Domain: <span>{typeof window !== 'undefined' ? window.location.hostname : 'N/A'}</span></div>
+                <div>Vercel Deployment: <span>{process.env.VERCEL_ENV || 'N/A'}</span></div>
+                <div>D-ID Element: <span id="did-element-status">Checking...</span></div>
               </div>
             </div>
             

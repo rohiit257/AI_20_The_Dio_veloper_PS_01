@@ -35,8 +35,12 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
     });
     if (!ctx) return;
 
+    // Add this to prevent memory leaks on Vercel deployment
+    let isActive = true;
+
     // Set canvas size to match window
     const resizeCanvas = () => {
+      if (!isActive) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
@@ -64,6 +68,8 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
 
     // Animation loop
     const animate = () => {
+      if (!isActive) return;
+      
       try {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -80,10 +86,14 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
           if (p.y > canvas.height + p.size) p.y = -p.size;
 
           // Draw particle - using simpler rendering to prevent tainting
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = p.color + Math.floor(p.opacity * 255).toString(16).padStart(2, '0');
-          ctx.fill();
+          try {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = p.color + Math.floor(p.opacity * 255).toString(16).padStart(2, '0');
+            ctx.fill();
+          } catch (err) {
+            // Silent fail for particle drawing
+          }
 
           // Draw connections with reduced frequency to avoid potential canvas issues
           if (index % 3 === 0) { 
@@ -116,7 +126,9 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
         // Don't break the animation loop on error
       }
 
-      animationFrameId.current = requestAnimationFrame(animate);
+      if (isActive) {
+        animationFrameId.current = requestAnimationFrame(animate);
+      }
     };
 
     // Set up and start animation
@@ -134,6 +146,7 @@ const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({
 
     // Cleanup
     return () => {
+      isActive = false;
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }

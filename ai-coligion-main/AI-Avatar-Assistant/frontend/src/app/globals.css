@@ -62,40 +62,71 @@
   }
 }
 
-/* D-ID Agent styling */
-did-agent {
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards;
-  animation-delay: 0.3s;
-  width: 100%;
-  height: 100%;
+/* D-ID Agent styling for better Vercel compatibility */
+did-agent,
+[data-component="did-agent"] {
+  opacity: 1 !important; /* Force visibility */
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
 
-[data-component="did-agent"] {
+/* Force visibility of the agent in Vercel environment */
+#did-container did-agent {
+  opacity: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 200px !important;
+}
+
+#did-container {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important; 
   max-height: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 5 !important;
+  overflow: visible !important;
 }
 
+/* Ensure D-ID agent is fully visible */
+#did-ui-root,
+#did-screen,
+.rtc-remote-media,
+.rtc-remote-container,
+video[data-did-id] {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  background: transparent !important;
+  z-index: 5 !important;
+}
+
+/* Make D-ID agent display without animation delay on Vercel */
+@media screen and (min-width: 100px) {
+  did-agent {
+    animation: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}
+
+/* Add a blurred backdrop while loading */
+#agent-loading-overlay {
+  backdrop-filter: blur(5px);
+}
+
+/* Remove animation for more reliable loading */
 @keyframes fadeIn {
   from {
-    opacity: 0;
+    opacity: 1;
   }
   to {
     opacity: 1;
   }
-}
-
-/* Make sure D-ID elements are properly sized in the container */
-#did-container,
-#did-ui-root,
-#did-screen,
-.rtc-remote-media {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
 } 
